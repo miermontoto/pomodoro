@@ -1,0 +1,25 @@
+.bar {
+	display: flex;
+	justify-content: center;
+	background-color: #1a1a1a;
+	border-radius: 0.5em;
+	flex-direction: column;
+}
+
+#timer {
+	font-size: 4em;
+	flex-direction: row;
+}
+
+div {
+	margin: 0.6em;
+}
+
+#timer > span:first-child {
+	margin-right: 0.5em;
+}
+
+.greyeddout {
+	color: gray;
+	font-style: italic;
+}

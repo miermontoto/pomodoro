@@ -1,0 +1,58 @@
+$back-color: black;
+$front-color: white;
+$font-stack: 'Courier Prime', monospace;
+
+@font-face {
+    font-family: 'Courier Prime';
+    font-display: swap;
+    src: local('Courier Prime')//, url('/assets/fonts/CourierPrime.woff2') format('woff2');
+}
+
+body {
+	background-color: $back-color;
+	color: $front-color;
+	font-family: $font-stack;
+    font-size: 1.5em;
+}
+
+::selection {
+    background-color: $front-color;
+    color: $back-color;
+}
+
+.btn {
+    display: inline-block;
+    color: black;
+    background-color: white;
+    border-radius: 0px;
+    user-select: none;
+	border-color: white;
+	text-transform: lowercase;
+}
+
+.btn:hover, .btn.active {
+    animation: MULTICOLOR 1s infinite;
+    cursor: pointer;
+    border-color: transparent;
+}
+
+@keyframes MULTICOLOR {
+    0%   { background-color:#9f0; color:#f3c; }
+    10%  { background-color:#6ff; color:#f0c; }
+    20%  { background-color:#39f; color:#9f0; }
+    30%  { background-color:#3c0; color:#fff; }
+    40%  { background-color:#03f; color:#f90; }
+    50%  { background-color:#9f0; color:#f30; }
+    60%  { background-color:#f0c; color:#fff; }
+    70%  { background-color:#0ff; color:#f30; }
+    80%  { background-color:#9f0; color:#066; }
+    90%  { background-color:#f90; color:#03f; }
+    100% { background-color:#03f; color:#f90; }
+}
+
+code {
+    color: var(--white);
+    background-color: var(--secondary);
+    padding: 0 5px;
+    border-radius: 5px;
+}
