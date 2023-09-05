@@ -152,11 +152,13 @@ export default {
 		formatDate(date) {
 			let s = "";
 			let d = new Date(date);
+			let now = new Date();
 
 			if (isNaN(d.getTime())) return "Loading..."; // if there is no time, the page is still loading
 
-			if (d.getDate() !== new Date().getDate()) {
-				s += d.toDateString() + ", ";
+			if (d.getDate() !== now.getDate()) {
+				if (d.getDate() === now.getDate() + 1) s += "mañana, ";
+				else s += d.toLocaleDateString('es-ES', {weekday: 'long'}) + ", ";
 			}
 			s += d.toTimeString().split(":00 ")[0];
 
