@@ -7,19 +7,26 @@
 }
 
 #timer {
-	font-size: 4em;
 	flex-direction: row;
 }
 
+#timer span {
+	font-size: 4em;
+}
+
 div {
-	margin: 0.6em;
+	margin: 1em;
 }
 
 #timer > span:first-child {
 	margin-right: 0.5em;
 }
 
-.greyeddout {
+.stop {
 	color: gray;
 	font-style: italic;
+}
+
+.coffee {
+	color: #b5651d;
 }

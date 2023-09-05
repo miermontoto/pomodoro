@@ -1,31 +1,52 @@
 <template>
 	<div id="timer" class="bar">
 		<span id="icon">{{ diff.icon }}</span>
-		<span id="countdown" :class="diff.style">{{ diff.string ? diff.string : '...' }}</span>
+		<span id="countdown" :class="diff.status">{{ diff.string ? diff.string : '...' }}</span>
 		<br>
 	</div>
 	<div id="info" class="bar">
 		<span id="next">Next: {{ formatDate(diff.target) }}</span>
-		<!-- <span id="status">Status: {{ diff.test }}</span> -->
 	</div>
 </template>
 
 <script>
 import '@/components/Timer.scss';
 
-const getDateDiff = (date1, date2, inSchedule) => {
+const getDateDiff = (date1, date2, status) => {
 	let diff = new Date(date2.getTime() - date1.getTime());
-	let hours = diff.getHours() + (diff.getDate() - 1) * 24;
+	let hours = (diff.getHours() - 1) + (diff.getDate() - 1) * 24;
 	let minutes = diff.getMinutes();
 	let seconds = diff.getSeconds();
-	let style = inSchedule ? '' : 'greyeddout';
-	let icon = date2.getMinutes() === 0 ? '☕' : '🛠️';
-	if (!inSchedule) icon = '🛑';
+	let items = hours === 0 ? [minutes, seconds] : [hours, minutes, seconds];
+	let icon;
+	switch(status) {
+		case 'work':
+			icon = '🍅';
+			break;
+		case 'stop':
+			icon = '🛑';
+			break;
+		case 'coffee':
+			icon = '☕';
+			break;
+		case 'jira':
+			icon = '📝';
+			break;
+		case 'questions':
+			icon = '❔';
+			break;
+		case 'pause':
+			icon = '⏸️';
+			break;
+		default:
+			icon = '';
+			break;
+	}
 	return {
-		string: [hours, minutes, seconds].map((x) => x.toString().padStart(2, '0')).join(':'),
+		string: items.map((x) => x.toString().padStart(2, '0')).join(':'),
 		icon: icon,
 		target: date2,
-		style: style,
+		status: status,
 	}
 };
 
@@ -62,17 +83,34 @@ export default {
 		 * Si no está en horario, devolver el próximo inicio de la jornada mediante nextStart().
 		 * @returns Fecha del próximo fin de pomodoro
 		 */
-		nextEnd() {
+		getStatus() {
 			let d = new Date();
-			if (!this.inSchedule(d)) return this.nextStart(); // Si no está en horario, buscar el próximo inicio
+			if (!this.inSchedule(d)) return [this.nextStart(), 'stop']; // Si no está en horario, buscar el próximo inicio
 
-			let nextStop = d.getMinutes() >= 50 ? 0 : 50;
+			let target = new Date(d);
+
+			// Reglas generales
+			target.setMilliseconds(0); // ignorar ms para evitar errores de redondeo
+			target.setSeconds(0);
+			target.setMinutes(d.getMinutes() >= 50 ? 0 : 50);
+			target.setHours(d.getMinutes() >= 50 ? d.getHours() + 1 : d.getHours());
+			let status = d.getMinutes() >= 50 ? 'pause' : 'work';
+
 			if (d.getDay() === 5 && d.getHours() === 10) { // tener en cuenta los jiras!
-				if (d.getMinutes() >= 45) nextStop = 0;
-				else nextStop = 45;
-			} else if (d.getHours() === 11) nextStop = 0; // tener en cuenta el descanso del café!
+				target.setMinutes(45); // Jira a las 10:45
 
-			return new Date(d.getFullYear(), d.getMonth(), d.getDate(), nextStop === 0 ? d.getHours() + 1 : d.getHours(), nextStop);
+				if (d.getMinutes() >= 45) { // En descanso de Jira
+					target.setMinutes(0);
+					target.setHours(12);
+					status = 'jira';
+				}
+			} else if (d.getHours() === 11 || (d.getHours() === 10 && d.getMinutes() >= 50)) { // tener en cuenta el descanso del café!
+				target.setMinutes(0);
+				target.setHours(12); // hasta las 12:00
+				status = 'coffee';
+			}
+
+			return [target, status];
 		},
 		/**
 		 * Calcular el próximo inicio de jornada.
@@ -108,14 +146,8 @@ export default {
 			return new Date(newYear, newMonth, newDay, this.getSchedule(targetDate)[0], 0);
 		},
 		getDiff() {
-			let nextEnd = this.nextEnd();
-			clearInterval(this.timer);
-			if (!nextEnd) {
-				this.timer = setInterval(this.getDiff, 50000);
-				return;
-			}
-			this.timer = setInterval(this.getDiff, 1000);
-			this.diff = getDateDiff(new Date(), nextEnd, this.inSchedule(new Date()));
+			let arr = this.getStatus();
+			this.diff = getDateDiff(new Date(), arr[0], arr[1]);
 		},
 		formatDate(date) {
 			let s = "";
