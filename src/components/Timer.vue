@@ -4,16 +4,31 @@
 		<span id="countdown" :class="diff.status">{{ diff.string ? diff.string : '...' }}</span>
 		<br>
 	</div>
-	<div id="info" class="bar">
-		<span id="next">Next: {{ formatDate(diff.target) }}</span>
+	<div class="bar">
+		<span id="info">
+			<span id="started">
+				<span class="info-left">Started:</span>
+				<span class="info-right">{{ formatDate(diff.start) }}</span>
+			</span>
+			<br>
+			<span id="next">
+				<span class="info-left">Next:</span>
+				<span class="info-right">{{ formatDate(diff.target) }}</span>
+			</span>
+		</span>
 	</div>
 </template>
 
 <script>
 import '@/components/Timer.scss';
 
-const getDateDiff = (date1, date2, status) => {
-	let diff = new Date(date2.getTime() - date1.getTime());
+const getDateDiff = (arr) => {
+	let now = new Date();
+	let target = arr[0];
+	let status = arr[1];
+	let start = arr[2];
+
+	let diff = new Date(target.getTime() - now.getTime());
 	let hours = (diff.getHours() - 1) + (diff.getDate() - 1) * 24;
 	let minutes = diff.getMinutes();
 	let seconds = diff.getSeconds();
@@ -45,8 +60,9 @@ const getDateDiff = (date1, date2, status) => {
 	return {
 		string: items.map((x) => x.toString().padStart(2, '0')).join(':'),
 		icon: icon,
-		target: date2,
+		target: target,
 		status: status,
+		start: start
 	}
 };
 
@@ -85,13 +101,16 @@ export default {
 		 */
 		getStatus() {
 			let d = new Date();
-			if (!this.inSchedule(d)) return [this.nextStart(), 'stop']; // Si no está en horario, buscar el próximo inicio
+
+			// Si no está en horario, buscar el próximo inicio
+			if (!this.inSchedule(d)) return [this.nextStart(), 'stop'];
 
 			let target = new Date(d);
 
 			// Reglas generales
 			target.setMilliseconds(0); // ignorar ms para evitar errores de redondeo
 			target.setSeconds(0);
+
 			target.setMinutes(d.getMinutes() >= 50 ? 0 : 50);
 			target.setHours(d.getMinutes() >= 50 ? d.getHours() + 1 : d.getHours());
 			let status = d.getMinutes() >= 50 ? 'pause' : 'work';
@@ -110,7 +129,7 @@ export default {
 				status = 'coffee';
 			}
 
-			return [target, status];
+			return [target, status, NaN];
 		},
 		/**
 		 * Calcular el próximo inicio de jornada.
@@ -147,7 +166,7 @@ export default {
 		},
 		getDiff() {
 			let arr = this.getStatus();
-			this.diff = getDateDiff(new Date(), arr[0], arr[1]);
+			this.diff = getDateDiff(arr);
 		},
 		formatDate(date) {
 			let s = "";

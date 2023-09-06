@@ -30,3 +30,20 @@ div {
 .coffee {
 	color: #b5651d;
 }
+
+#info {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-left: 25em;
+	margin-right: 25em;
+}
+
+.info-left {
+	font-weight: bolder;
+	margin-right: 1em;
+}
+
+.info-right {
+	text-align: right;
+}

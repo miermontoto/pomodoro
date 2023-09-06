@@ -17,7 +17,7 @@
 			with <span class="heart">❤</span>
 			for <a href="https://okticket.es"><img src="https://mier.info/assets/logos/okticket.png" width="256" height="256" id="oktlogo" alt="okticket"></a>
 			by <a href="https://mier.info">Juan Mier</a>
-			in <code>Vue.js 3</code>
+			in <code>vue.js</code>
 		</span>
 	</div>
 </template>
