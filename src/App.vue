@@ -4,6 +4,14 @@
 	import '@/App.scss';
 </script>
 
+<script>
+	export default {
+		created() {
+			document.title = 'OKTpomodoro'
+		}
+	}
+</script>
+
 <template>
 	<MarqueeComponent />
 	<TimerComponent />
