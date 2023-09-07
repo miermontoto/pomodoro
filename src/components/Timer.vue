@@ -8,7 +8,7 @@
 		<span id="info">
 			<span id="started">
 				<span class="info-left">Started:</span>
-				<span class="info-right">{{ formatDate(diff.start) }}</span>
+				<span class="info-right">{{ diff.start }}</span>
 			</span>
 			<br>
 			<span id="next">
@@ -103,8 +103,9 @@ export default {
 			let d = new Date();
 
 			// Si no está en horario, buscar el próximo inicio
-			if (!this.inSchedule(d)) return [this.nextStart(), 'stop'];
+			if (!this.inSchedule(d)) return [this.nextStart(), 'stop', this.formatDate(NaN)];
 
+			let lastStart = this.lastStart();
 			let target = new Date(d);
 
 			// Reglas generales
@@ -115,10 +116,10 @@ export default {
 			target.setHours(d.getMinutes() >= 50 ? d.getHours() + 1 : d.getHours());
 			let status = d.getMinutes() >= 50 ? 'pause' : 'work';
 
-			if (d.getDay() === 5 && d.getHours() === 10) { // tener en cuenta los jiras!
+			if (d.getDay() === 5 && ((d.getHours() === 10 && d.getMinutes() >= 45) || d.getHours() === 11)) { // tener en cuenta los jiras!
 				target.setMinutes(45); // Jira a las 10:45
 
-				if (d.getMinutes() >= 45) { // En descanso de Jira
+				if (d.getMinutes() >= 45 || d.getHours() === 11) { // En descanso de Jira
 					target.setMinutes(0);
 					target.setHours(12);
 					status = 'jira';
@@ -129,7 +130,7 @@ export default {
 				status = 'coffee';
 			}
 
-			return [target, status, NaN];
+			return [target, status, lastStart];
 		},
 		/**
 		 * Calcular el próximo inicio de jornada.
@@ -164,6 +165,39 @@ export default {
 			let targetDate = new Date(newYear, newMonth, newDay);
 			return new Date(newYear, newMonth, newDay, this.getSchedule(targetDate)[0], 0);
 		},
+		lastStart() {
+			let d = new Date();
+			let target = new Date(d);
+			target.setMilliseconds(0);
+			target.setSeconds(0);
+
+			if(!this.inSchedule(d)) { // Si no está en horario, buscar el último inicio
+				target.setMinutes(0);
+				let todaysSchedule = this.getSchedule(d);
+				let yesterdaysSchedule = this.getSchedule(new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1));
+
+				if (d.getHours() < todaysSchedule[0]) {
+					target.setDate(d.getDate() - 1);
+					target.setHours(yesterdaysSchedule[1]);
+					return this.formatDate(target);
+				} else {
+					target.setHours(todaysSchedule[1]);
+					return this.formatDate(target);
+				}
+			}
+
+			target.setMinutes(d.getMinutes() >= 50 ? 50 : 0);
+
+			if (d.getDay() === 5 && (d.getHours() === 11 || (d.getHours() === 10 && d.getMinutes() >= 45))) {
+				target.setHours(10);
+				target.setMinutes(45);
+			} else if(d.getHours() === 11 || (d.getHours() === 10 && d.getMinutes() >= 50)) {
+				target.setHours(10);
+				target.setMinutes(50);
+			}
+
+			return this.formatDate(target);
+		},
 		getDiff() {
 			let arr = this.getStatus();
 			this.diff = getDateDiff(arr);
@@ -173,10 +207,11 @@ export default {
 			let d = new Date(date);
 			let now = new Date();
 
-			if (isNaN(d.getTime())) return "Loading..."; // if there is no time, the page is still loading
+			if (isNaN(d.getTime())) return "..."; // if there is no time, the page is still loading
 
 			if (d.getDate() !== now.getDate()) {
 				if (d.getDate() === now.getDate() + 1) s += "mañana, ";
+				else if (d.getDate() === now.getDate() - 1) s += "ayer, ";
 				else s += d.toLocaleDateString('es-ES', {weekday: 'long'}) + ", ";
 			}
 			s += d.toTimeString().split(":00 ")[0];
