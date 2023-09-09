@@ -13,8 +13,13 @@
 		font-size: min(10vw, 5em);
 	}
 
-	> span:first-child {
+	#icon {
 		margin-right: 0.5em;
+		aspect-ratio: 1;
+	}
+
+	#countdown {
+		align-self: center;
 	}
 
 	.stop { // not on schedule
@@ -43,13 +48,8 @@ div {
 		margin: 0.25em;
 	}
 
-	#icon {
+	> span:first-child {
 		margin-right: 1.5em;
-		aspect-ratio: 1;
-	}
-
-	#countdown {
-		align-self: center;
 	}
 }
 
