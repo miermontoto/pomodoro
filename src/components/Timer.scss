@@ -43,8 +43,13 @@ div {
 		margin: 0.25em;
 	}
 
-	> span:first-child {
+	#icon {
 		margin-right: 1.5em;
+		aspect-ratio: 1;
+	}
+
+	#countdown {
+		align-self: center;
 	}
 }
 
