@@ -8,40 +8,49 @@
 
 #timer {
 	flex-direction: row;
-}
 
-#timer span {
-	font-size: 4em;
+	span {
+		font-size: min(10vw, 5em);
+	}
+
+	> span:first-child {
+		margin-right: 0.5em;
+	}
+
+	.stop { // not on schedule
+		color: gray;
+		font-style: italic;
+	}
+
+	.coffee { // coffee break
+		color: #b5651d;
+	}
 }
 
 div {
 	margin: 1em;
 }
 
-#timer > span:first-child {
-	margin-right: 0.5em;
-}
-
-.stop {
-	color: gray;
-	font-style: italic;
-}
-
-.coffee {
-	color: #b5651d;
-}
-
 #info {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-left: 25%;
-	margin-right: 25%;
+	margin-left: 5svw;
+	margin-right: 5svw;
+	font-size: min(4vw, 1em);
+
+	> span {
+		margin: 0.25em;
+	}
+
+	> span:first-child {
+		margin-right: 1.5em;
+	}
 }
 
 .info-left {
 	font-weight: bolder;
-	margin-right: 1em;
+	margin-right: min(2em, 2vw);
 }
 
 .info-right {
