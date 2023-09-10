@@ -1,7 +1,7 @@
 .bar {
 	display: flex;
 	justify-content: center;
-	background-color: #1a1a1a;
+	background-color: $background-color;
 	border-radius: 0.5em;
 	flex-direction: column;
 }
@@ -23,12 +23,12 @@
 	}
 
 	.stop { // not on schedule
-		color: gray;
+		color: $alt-color;
 		font-style: italic;
 	}
 
 	.coffee { // coffee break
-		color: #b5651d;
+		color: $coffee-color;
 	}
 }
 

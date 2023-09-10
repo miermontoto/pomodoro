@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import '@/components/Timer.scss';
+import '@/components/timer/Timer.scss';
 
 const getDateDiff = (arr) => {
 	let now = new Date();
@@ -103,7 +103,7 @@ export default {
 			let d = new Date();
 
 			// Si no está en horario, buscar el próximo inicio
-			if (!this.inSchedule(d)) return [this.nextStart(), 'stop', this.formatDate(NaN)];
+			// if (!this.inSchedule(d)) return [this.nextStart(), 'stop', this.formatDate(NaN)];
 
 			let lastStart = this.lastStart();
 			let target = new Date(d);
