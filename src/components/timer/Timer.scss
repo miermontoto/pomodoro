@@ -21,15 +21,6 @@
 	#countdown {
 		align-self: center;
 	}
-
-	.stop { // not on schedule
-		color: $alt-color;
-		font-style: italic;
-	}
-
-	.coffee { // coffee break
-		color: $coffee-color;
-	}
 }
 
 div {
@@ -63,4 +54,17 @@ div {
 
 .info-right {
 	text-align: right;
+}
+
+.warning {
+	color: $warning-color;
+}
+
+.stop { // not on schedule
+	color: $alt-color;
+	font-style: italic;
+}
+
+.coffee { // coffee break
+	color: $coffee-color;
 }

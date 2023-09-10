@@ -8,7 +8,7 @@
 		<span id="info">
 			<span id="started">
 				<span class="info-left">Started:</span>
-				<span class="info-right">{{ diff.start }}</span>
+				<span class="info-right" :class="diff.startStyle">{{ diff.start }}</span>
 			</span>
 			<br>
 			<span id="next">
@@ -57,12 +57,14 @@ const getDateDiff = (arr) => {
 			icon = '';
 			break;
 	}
+
 	return {
 		string: items.map((x) => x.toString().padStart(2, '0')).join(':'),
 		icon: icon,
 		target: target,
 		status: status,
-		start: start
+		start: start,
+		startStyle: start === '...' ? 'stop' : '',
 	}
 };
 
@@ -103,7 +105,7 @@ export default {
 			let d = new Date();
 
 			// Si no está en horario, buscar el próximo inicio
-			// if (!this.inSchedule(d)) return [this.nextStart(), 'stop', this.formatDate(NaN)];
+			if (!this.inSchedule(d)) return [this.nextStart(), 'stop', this.formatDate(NaN)];
 
 			let lastStart = this.lastStart();
 			let target = new Date(d);
