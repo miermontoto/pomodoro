@@ -126,10 +126,14 @@ export default {
 					target.setHours(12);
 					status = 'jira';
 				}
-			} else if (d.getHours() === 11 || (d.getHours() === 10 && d.getMinutes() >= 50)) { // tener en cuenta el descanso del café!
-				target.setMinutes(0);
-				target.setHours(12); // hasta las 12:00
+			} else if ((d.getHours() === 11 && d.getMinutes() < 30) || (d.getHours() === 10 && d.getMinutes() >= 50)) { // tener en cuenta el descanso del café!
+				target.setMinutes(30);
+				target.setHours(11); // hasta las 11:30
 				status = 'coffee';
+			} else if (d.getHours() === 11) {
+				target.setMinutes(d.getMinutes() < 55 ? 55 : 0);
+				target.setHours(target.getMinutes() === 0 ? 12 : 11);
+				status = d.getMinutes() <= 55 ? 'work' : 'pause';
 			}
 
 			return [target, status, lastStart];
