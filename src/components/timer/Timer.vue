@@ -85,6 +85,7 @@ export default {
 		 * @returns Array con el inicio y fin del horario
 		 */
 		getSchedule(date) {
+			if (date.getDay() === 5) return [8, 15]; // Viernes de 8 a 15
 			return date.getMonth() < 8 && date.getMonth() > 5 ? [8, 15] : [9, 14];
 		},
 		/**
