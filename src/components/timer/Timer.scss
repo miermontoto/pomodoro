@@ -3,11 +3,12 @@
 	justify-content: center;
 	background-color: $background-color;
 	border-radius: 0.5em;
-	flex-direction: column;
+	align-items: center;
 }
 
 #timer {
 	flex-direction: row;
+	padding-top: 2svw;
 
 	span {
 		font-size: min(14vw, 5em);
@@ -43,7 +44,7 @@ div {
 	}
 
 	> span:first-child {
-		margin-right: 1.5em;
+		margin-right: 10svw;
 	}
 }
 

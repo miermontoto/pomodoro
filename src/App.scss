@@ -18,6 +18,8 @@ body {
     user-select: none;
 	border-color: $front-color;
 	text-transform: lowercase;
+    font-size: 0.75em;
+    text-align: center;
 }
 
 .btn:hover, .btn.active {
@@ -50,7 +52,6 @@ code {
 #footer {
     font-size: 0.6em;
     text-align: center;
-    // position at the bottom
     position: fixed;
     bottom: 0;
     width: 100%;
@@ -62,6 +63,8 @@ code {
 }
 
 #oktlogo {
+    position: relative;
+    top: 0.4em;
     width: 1.5em;
     height: 1.5em;
     border-radius: 5%;

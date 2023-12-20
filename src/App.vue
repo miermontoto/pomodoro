@@ -1,5 +1,5 @@
 <script setup>
-	import TimerComponent from '@/components/timer/Timer.vue';
+	import TimerComponent   from '@/components/timer/Timer.vue';
 	import MarqueeComponent from '@/components/marquee/Marquee.vue';
 	import '@/App.scss';
 </script>
@@ -23,7 +23,7 @@
 
 		<span id="footer-text">
 			made with ❤
-			for <a href="https://okticket.es"><img src="https://mier.info/assets/logos/okticket.png" width="256" height="256" id="oktlogo" alt="okticket"></a>
+			for <a href="https://okticket.es"><img src="https://mier.info/assets/icons/exp/okticket.png" width="256" height="256" id="oktlogo" alt="okticket"></a>
 			by <a href="https://mier.info">Juan Mier</a>
 			in <code>vue.js</code>
 		</span>

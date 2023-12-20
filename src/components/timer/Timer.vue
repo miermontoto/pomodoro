@@ -53,6 +53,9 @@ const getDateDiff = (arr) => {
 		case 'pause':
 			icon = '⏸️';
 			break;
+		case 'daily':
+			icon = '📅';
+			break;
 		default:
 			icon = '';
 			break;
