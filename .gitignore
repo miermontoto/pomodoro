@@ -2,7 +2,8 @@
 node_modules
 /dist
 /public
-
+pnpm-lock.yaml
+index.html
 
 # local env files
 .env.local

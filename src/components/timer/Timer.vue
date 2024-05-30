@@ -7,12 +7,12 @@
 	<div class="bar">
 		<span id="info">
 			<span id="started">
-				<span class="info-left">Started:</span>
+				<span class="info-left">started:</span>
 				<span class="info-right" :class="diff.startStyle">{{ diff.start }}</span>
 			</span>
 			<br>
 			<span id="next">
-				<span class="info-left">Next:</span>
+				<span class="info-left">next:</span>
 				<span class="info-right">{{ formatDate(diff.target) }}</span>
 			</span>
 		</span>
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import '@/components/timer/Timer.scss';
+import './Timer.scss';
 
 const getDateDiff = (arr) => {
 	let now = new Date();
@@ -130,14 +130,16 @@ export default {
 					target.setHours(12);
 					status = 'jira';
 				}
-			} else if ((d.getHours() === 11 && d.getMinutes() < 30) || (d.getHours() === 10 && d.getMinutes() >= 50)) { // tener en cuenta el descanso del café!
-				target.setMinutes(30);
-				target.setHours(11); // hasta las 11:30
-				status = 'coffee';
 			} else if (d.getHours() === 11) {
-				target.setMinutes(d.getMinutes() < 55 ? 55 : 0);
-				target.setHours(target.getMinutes() === 0 ? 12 : 11);
-				status = d.getMinutes() <= 55 ? 'work' : 'pause';
+				if (d.getMinutes() < 30) { // descanso
+					target.setMinutes(30);
+					target.setHours(11); // hasta las 11:30
+					status = 'coffee';
+				} else {
+					target.setMinutes(d.getMinutes() < 55 ? 55 : 0);
+					target.setHours(target.getMinutes() === 0 ? 12 : 11);
+					status = d.getMinutes() <= 55 ? 'work' : 'pause';
+				}
 			}
 
 			return [target, status, lastStart];
@@ -201,9 +203,8 @@ export default {
 			if (d.getDay() === 5 && (d.getHours() === 11 || (d.getHours() === 10 && d.getMinutes() >= 45))) {
 				target.setHours(10);
 				target.setMinutes(45);
-			} else if(d.getHours() === 11 || (d.getHours() === 10 && d.getMinutes() >= 50)) {
-				target.setHours(10);
-				target.setMinutes(50);
+			} else if (d.getHours() === 11 && d.getMinutes() >= 30) {
+				target.setMinutes(30);
 			}
 
 			return this.formatDate(target);

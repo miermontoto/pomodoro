@@ -1,7 +1,7 @@
 <script setup>
-	import TimerComponent   from '@/components/timer/Timer.vue';
-	import MarqueeComponent from '@/components/marquee/Marquee.vue';
-	import '@/App.scss';
+	import TimerComponent   from './components/timer/Timer.vue';
+	import MarqueeComponent from './components/marquee/Marquee.vue';
+	import './App.scss';
 </script>
 
 <script>

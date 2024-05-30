@@ -1,5 +1,5 @@
 <script>
-	import '@/components/planner/Planner.scss';
+	import './Planner.scss';
 	export default {
 		name: 'PlannerComponent',
 		components: {},

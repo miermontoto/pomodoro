@@ -1,5 +1,5 @@
 <script>
-	import '@/components/marquee/Marquee.scss';
+	import './Marquee.scss';
 	export default {
 		name: 'MarqueeComponent',
 		components: {},
