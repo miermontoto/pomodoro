@@ -110,14 +110,16 @@ const getStatus = () => {
 
 	date.setSeconds(0, 0);
 	let minutes = date.getMinutes();
+	let status = 'work';
 	if (minutes >= 50) {
 		date.setMinutes(0);
 		date.setHours(date.getHours() + 1);
+		status = 'pause';
 	} else {
 		date.setMinutes(50);
 	}
 
-	return { target: date, status: 'work', start: UNKNOWN }; // TODO: get start time
+	return { target: date, status: status, start: UNKNOWN }; // TODO: get start time
 };
 
 
