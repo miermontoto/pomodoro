@@ -96,6 +96,12 @@ const inSchedule = (date) => {
 
 const formatDate = (date) => {
 	if (!date) return UNKNOWN;
+
+	// si estamos en el mismo día, devolver solo la hora
+	if (date.getDate() === new Date().getDate()) {
+		return date.toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit' });
+	}
+
 	return date.toLocaleString('es-ES', { weekday: 'long', hour: '2-digit', minute: '2-digit' });
 };
 
