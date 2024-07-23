@@ -186,6 +186,7 @@ export default {
 	methods: {
 		updateDiff() {
 			this.diff = getDateDiff(getStatus());
+			window.document.title = `${this.diff.icon} ${this.diff.string}`;
 		},
 	},
 	mounted() {
