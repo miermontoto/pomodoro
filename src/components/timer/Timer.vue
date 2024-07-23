@@ -101,25 +101,66 @@ const formatDate = (date) => {
 
 
 const getStatus = () => {
-	const date = new Date();
+	const targetDate = new Date();
+	const startDate = new Date();
 
-	if (!inSchedule(date)) {
-		const { nextStart, lastEnd } = workdayCalculator(date);
+	if (!inSchedule(targetDate)) {
+		const { nextStart, lastEnd } = workdayCalculator(targetDate);
 		return { target: nextStart, status: 'stop', start: lastEnd };
 	}
 
-	date.setSeconds(0, 0);
-	let minutes = date.getMinutes();
-	let status = 'work';
+	// reset seconds to avoid rounding errors
+	targetDate.setSeconds(0, 0);
+	startDate.setSeconds(0, 0);
+
+	// get info about current time
+	const hours = targetDate.getHours();
+	const minutes = targetDate.getMinutes();
+	const weekday = targetDate.getDay();
+
+	let status = 'work'; // default status is work
+
 	if (minutes >= 50) {
-		date.setMinutes(0);
-		date.setHours(date.getHours() + 1);
+		targetDate.setMinutes(0);
+		targetDate.setHours(targetDate.getHours() + 1);
+		startDate.setMinutes(50);
 		status = 'pause';
 	} else {
-		date.setMinutes(50);
+		targetDate.setMinutes(50);
+		startDate.setMinutes(0);
 	}
 
-	return { target: date, status: status, start: UNKNOWN }; // TODO: get start time
+	if (hours === 11 && weekday != 5) { // coffee!
+		if (minutes >= 30) {
+			targetDate.setHours(12);
+			targetDate.setMinutes(0);
+			startDate.setMinutes(30);
+		} else {
+			targetDate.setHours(11);
+			targetDate.setMinutes(30);
+			startDate.setMinutes(0);
+			status = 'coffee';
+		}
+	}
+
+	if (weekday == 5) { // jira time
+		if (hours == 10) {
+			if (minutes >= 45) {
+				targetDate.setHours(11);
+				targetDate.setMinutes(15);
+				startDate.setMinutes(45);
+				status = 'jira';
+			} else {
+				targetDate.setHours(10);
+				targetDate.setMinutes(45);
+				startDate.setMinutes(0);
+			}
+		} else if (hours == 11 && minutes >= 15) {
+			startDate.setMinutes(15);
+		}
+	}
+
+	return { target: targetDate, status: status, start: startDate };
 };
 
 
