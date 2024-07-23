@@ -137,15 +137,15 @@ const getStatus = () => {
 	}
 
 	if (hours === 11 && weekday != 5) { // coffee!
-		if (minutes >= 30) {
-			targetDate.setHours(11);
-			targetDate.setMinutes(55);
-			startDate.setMinutes(30);
-		} else if (minutes >= 55) {
+		if (minutes >= 55) {
 			targetDate.setHours(12);
 			targetDate.setMinutes(0);
 			startDate.setMinutes(55);
 			status = 'pause'
+		} else if (minutes >= 30) {
+			targetDate.setHours(11);
+			targetDate.setMinutes(55);
+			startDate.setMinutes(30);
 		} else {
 			targetDate.setHours(11);
 			targetDate.setMinutes(30);
