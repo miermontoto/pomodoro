@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'Courier Prime';
+    font-display: swap;
+    src: local('Courier Prime'), url('@/assets/fonts/CourierPrime.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Berkeley Mono';
+    font-display: swap;
+    src: local ('Berkeley Mono'), url('@/assets/fonts/BerkeleyMonoVariable-Regular.woff2') format('woff2');
+}
+
+$font-stack: 'Berkeley Mono', 'Courier Prime', monospace;

@@ -4,21 +4,13 @@
 	import './App.scss';
 </script>
 
-<script>
-	export default {
-		created() {
-			document.title = 'OKTpomodoro'
-		}
-	}
-</script>
-
 <template>
 	<MarqueeComponent />
 	<TimerComponent />
 
 	<div id="footer">
 		<a href="https://mier.info">
-			<img src="https://mier.info/assets/favicon.svg" id="footer-logo" alt="logo">
+			<img type="image/svg" src="/favicon.svg" id="footer-logo" alt="logo">
 		</a>
 
 		<span id="footer-text">
