@@ -63,19 +63,25 @@ const getSchedule = (date) => {
 
 
 function workdayCalculator(date) {
-    let workday = new Date(date);
+    let today = new Date(date);
     let dayOffset = (date.getDay() % 6 === 0) ? 2 : 1;
 
     // last workday end
-    let lastWorkday = new Date(workday);
-    lastWorkday.setDate(workday.getDate() - dayOffset);
+    let lastWorkday = new Date(today);
+    lastWorkday.setDate(today.getDate() - dayOffset);
     let lastSchedule = getSchedule(lastWorkday);
     let endHour = lastSchedule[lastSchedule.length - 1][1];
     lastWorkday.setHours(endHour, 0, 0, 0);
 
     // next workday start
-    let nextWorkday = new Date(workday);
-    nextWorkday.setDate(workday.getDate() + dayOffset);
+    let nextWorkday = new Date(today);
+
+	// if the schedule for today has passed, we need to add a day
+	let todaySchedule = getSchedule(today);
+	if (today.getHours() >= todaySchedule[lastSchedule.length - 1][1]) {
+    	nextWorkday.setDate(today.getDate() + dayOffset);
+	}
+
     let nextSchedule = getSchedule(nextWorkday);
     let startHour = nextSchedule[0][0];
     nextWorkday.setHours(startHour, 0, 0, 0);
@@ -126,6 +132,7 @@ const getStatus = () => {
 
 	let status = 'work'; // default status is work
 
+	// basic pomodoro rules (50 minutes)
 	if (minutes >= 50) {
 		targetDate.setMinutes(0);
 		targetDate.setHours(targetDate.getHours() + 1);
@@ -136,7 +143,8 @@ const getStatus = () => {
 		startDate.setMinutes(0);
 	}
 
-	if (hours === 11 && weekday != 5) { // coffee!
+ 	// coffee!
+	if (hours === 11 && weekday != 5) {
 		if (minutes >= 55) {
 			targetDate.setHours(12);
 			targetDate.setMinutes(0);
@@ -154,7 +162,8 @@ const getStatus = () => {
 		}
 	}
 
-	if (weekday == 5) { // jira time
+	// jira time
+	if (weekday == 5) {
 		if (hours == 10) {
 			if (minutes >= 45) {
 				targetDate.setHours(11);
