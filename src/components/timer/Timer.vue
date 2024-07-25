@@ -143,6 +143,19 @@ const getStatus = () => {
 		startDate.setMinutes(0);
 	}
 
+	// daily
+	if (hours === getSchedule(targetDate)[0][0]) {
+		if (minutes >= 30) {
+			targetDate.setHours(hours + 1);
+			targetDate.setMinutes(0);
+			startDate.setMinutes(30);
+			status = 'daily';
+		} else {
+			targetDate.setMinutes(30);
+			startDate.setMinutes(0);
+		}
+	}
+
  	// coffee!
 	if (hours === 11 && weekday != 5) {
 		if (minutes >= 55) {
