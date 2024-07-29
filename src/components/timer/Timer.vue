@@ -150,8 +150,12 @@ const getStatus = () => {
 			targetDate.setMinutes(0);
 			startDate.setMinutes(30);
 			status = 'daily';
-		} else {
+		} else if (minutes >= 25) {
 			targetDate.setMinutes(30);
+			startDate.setMinutes(25);
+			status = 'pause';
+		} else {
+			targetDate.setMinutes(25);
 			startDate.setMinutes(0);
 		}
 	}
