@@ -43,10 +43,13 @@ const getDateDiff = (arr) => {
 	const seconds = diff.getSeconds();
 	const items = hours === 0 ? [minutes, seconds] : [hours, minutes, seconds];
 
+	const targetIcon = STATUS_ICONS.get(getStatus(target).status) || '❔';
+	const targetDate = formatDate(target) ?? UNKNOWN;
+
 	return {
 		string: items.map((x) => x.toString().padStart(2, '0')).join(':') ?? UNKNOWN,
 		icon: STATUS_ICONS.get(status) || '❔',
-		target: formatDate(target) ?? UNKNOWN,
+		target: `${targetIcon} ${targetDate}`,
 		status: status,
 		start: formatDate(start) ?? UNKNOWN
 	}
@@ -66,29 +69,30 @@ function workdayCalculator(date) {
     let today = new Date(date);
     let dayOffset = (date.getDay() % 6 === 0) ? 2 : 1;
 
-    // last workday end
-    let lastWorkday = new Date(today);
-    lastWorkday.setDate(today.getDate() - dayOffset);
-    let lastSchedule = getSchedule(lastWorkday);
-    let endHour = lastSchedule[lastSchedule.length - 1][1];
-    lastWorkday.setHours(endHour, 0, 0, 0);
+    let lastEnd = new Date(today);
+    let nextStart = new Date(today);
 
-    // next workday start
-    let nextWorkday = new Date(today);
+	// if the schedule for today hasn't started yet, we need to subtract a day
+    if (today.getHours() < getSchedule(today)[0][0]) {
+		lastEnd.setDate(today.getDate() - dayOffset);
+	}
+    let lastSchedule = getSchedule(lastEnd);
+    let endHour = lastSchedule[lastSchedule.length - 1][1];
+    lastEnd.setHours(endHour, 0, 0, 0);
 
 	// if the schedule for today has passed, we need to add a day
 	let todaySchedule = getSchedule(today);
 	if (today.getHours() >= todaySchedule[lastSchedule.length - 1][1]) {
-    	nextWorkday.setDate(today.getDate() + dayOffset);
+    	nextStart.setDate(today.getDate() + dayOffset);
 	}
 
-    let nextSchedule = getSchedule(nextWorkday);
+    let nextSchedule = getSchedule(nextStart);
     let startHour = nextSchedule[0][0];
-    nextWorkday.setHours(startHour, 0, 0, 0);
+    nextStart.setHours(startHour, 0, 0, 0);
 
     return {
-        lastEnd: lastWorkday,
-        nextStart: nextWorkday
+        lastEnd,
+        nextStart
     };
 }
 
@@ -112,12 +116,12 @@ const formatDate = (date) => {
 };
 
 
-const getStatus = () => {
+const getStatus = (date) => {
 	const targetDate = new Date();
 	const startDate = new Date();
 
-	if (!inSchedule(targetDate)) {
-		const { nextStart, lastEnd } = workdayCalculator(targetDate);
+	if (!inSchedule(date)) {
+		const { nextStart, lastEnd } = workdayCalculator(date);
 		return { target: nextStart, status: 'stop', start: lastEnd };
 	}
 
@@ -126,16 +130,16 @@ const getStatus = () => {
 	startDate.setSeconds(0, 0);
 
 	// get info about current time
-	const hours = targetDate.getHours();
-	const minutes = targetDate.getMinutes();
-	const weekday = targetDate.getDay();
+	const hours = date.getHours();
+	const minutes = date.getMinutes();
+	const weekday = date.getDay();
 
 	let status = 'work'; // default status is work
 
 	// basic pomodoro rules (50 minutes)
 	if (minutes >= 50) {
 		targetDate.setMinutes(0);
-		targetDate.setHours(targetDate.getHours() + 1);
+		targetDate.setHours(hours + 1);
 		startDate.setMinutes(50);
 		status = 'pause';
 	} else {
@@ -144,7 +148,7 @@ const getStatus = () => {
 	}
 
 	// daily
-	if (hours === getSchedule(targetDate)[0][0]) {
+	if (hours === getSchedule(date)[0][0]) {
 		if (minutes >= 30) {
 			targetDate.setHours(hours + 1);
 			targetDate.setMinutes(0);
@@ -168,11 +172,9 @@ const getStatus = () => {
 			startDate.setMinutes(55);
 			status = 'pause'
 		} else if (minutes >= 30) {
-			targetDate.setHours(11);
 			targetDate.setMinutes(55);
 			startDate.setMinutes(30);
 		} else {
-			targetDate.setHours(11);
 			targetDate.setMinutes(30);
 			startDate.setMinutes(0);
 			status = 'coffee';
@@ -211,7 +213,7 @@ export default {
 	},
 	methods: {
 		updateDiff() {
-			this.diff = getDateDiff(getStatus());
+			this.diff = getDateDiff(getStatus(new Date()));
 			window.document.title = `${this.diff.icon} ${this.diff.string}`;
 		},
 	},
