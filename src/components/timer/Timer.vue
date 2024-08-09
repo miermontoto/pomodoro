@@ -202,8 +202,10 @@ const getStatus = (date) => {
 				startDate.setMinutes(55);
 				status = 'pause';
 			} else if (minutes >= 30) {
+				targetDate.setHours(11);
 				targetDate.setMinutes(55);
 				startDate.setMinutes(30);
+				status = 'work';
 			} else if (minutes >= 15) {
 				targetDate.setHours(11);
 				targetDate.setMinutes(30);
