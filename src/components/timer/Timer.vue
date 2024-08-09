@@ -195,8 +195,26 @@ const getStatus = (date) => {
 				targetDate.setMinutes(45);
 				startDate.setMinutes(0);
 			}
-		} else if (hours == 11 && minutes >= 15) {
-			startDate.setMinutes(15);
+		} else if (hours == 11) {
+			if (minutes >= 55) {
+				targetDate.setHours(12);
+				targetDate.setMinutes(0);
+				startDate.setMinutes(55);
+				status = 'pause';
+			} else if (minutes >= 30) {
+				targetDate.setMinutes(55);
+				startDate.setMinutes(30);
+			} else if (minutes >= 15) {
+				targetDate.setHours(11);
+				targetDate.setMinutes(30);
+				startDate.setMinutes(15);
+				status = 'pause';
+			} else {
+				targetDate.setMinutes(15);
+				startDate.setHours(10);
+				startDate.setMinutes(45);
+				status = 'jira';
+			}
 		}
 	}
 
