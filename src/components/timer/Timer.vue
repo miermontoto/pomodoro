@@ -4,7 +4,8 @@
 		<span id="countdown" :class="diff.status">{{ diff.string }}</span>
 		<br>
 	</div>
-	<div class="bar">
+	<div class="bar progress-bar"
+		:style="{ background: `linear-gradient(to right, #7a7a7a ${progress}%, transparent ${progress}%)` }">
 		<span id="info">
 			<span id="started">
 				<span class="info-left">started:</span>
@@ -66,34 +67,34 @@ const getSchedule = (date) => {
 
 
 function workdayCalculator(date) {
-    let today = new Date(date);
-    let dayOffset = (date.getDay() % 6 === 0) ? 2 : 1;
+	let today = new Date(date);
+	let dayOffset = (date.getDay() % 6 === 0) ? 2 : 1;
 
-    let lastEnd = new Date(today);
-    let nextStart = new Date(today);
+	let lastEnd = new Date(today);
+	let nextStart = new Date(today);
 
 	// if the schedule for today hasn't started yet, we need to subtract a day
-    if (today.getHours() < getSchedule(today)[0][0]) {
+	if (today.getHours() < getSchedule(today)[0][0]) {
 		lastEnd.setDate(today.getDate() - dayOffset);
 	}
-    let lastSchedule = getSchedule(lastEnd);
-    let endHour = lastSchedule[lastSchedule.length - 1][1];
-    lastEnd.setHours(endHour, 0, 0, 0);
+	let lastSchedule = getSchedule(lastEnd);
+	let endHour = lastSchedule[lastSchedule.length - 1][1];
+	lastEnd.setHours(endHour, 0, 0, 0);
 
 	// if the schedule for today has passed, we need to add a day
 	let todaySchedule = getSchedule(today);
 	if (today.getHours() >= todaySchedule[lastSchedule.length - 1][1]) {
-    	nextStart.setDate(today.getDate() + dayOffset);
+		nextStart.setDate(today.getDate() + dayOffset);
 	}
 
-    let nextSchedule = getSchedule(nextStart);
-    let startHour = nextSchedule[0][0];
-    nextStart.setHours(startHour, 0, 0, 0);
+	let nextSchedule = getSchedule(nextStart);
+	let startHour = nextSchedule[0][0];
+	nextStart.setHours(startHour, 0, 0, 0);
 
-    return {
-        lastEnd,
-        nextStart
-    };
+	return {
+		lastEnd,
+		nextStart
+	};
 }
 
 
@@ -164,7 +165,7 @@ const getStatus = (date) => {
 		}
 	}
 
- 	// coffee!
+	// coffee!
 	if (hours === 11 && weekday != 5) {
 		if (minutes >= 55) {
 			targetDate.setHours(12);
@@ -209,12 +210,17 @@ export default {
 		return {
 			timer: undefined,
 			diff: {},
+			progress: 0,
 		};
 	},
 	methods: {
 		updateDiff() {
-			this.diff = getDateDiff(getStatus(new Date()));
+			const status = getStatus(new Date());
+			this.diff = getDateDiff(status);
 			window.document.title = `${this.diff.icon} ${this.diff.string}`;
+
+			const elapsed = new Date() - status.start;
+			this.progress = Math.min(100, (elapsed / (status.target - status.start)) * 100);
 		},
 	},
 	mounted() {

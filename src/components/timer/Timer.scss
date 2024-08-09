@@ -38,11 +38,11 @@ div {
 	margin-right: 5svw;
 	font-size: min(4vw, 1em);
 
-	> span {
+	>span {
 		margin: 0.25em;
 	}
 
-	> span:first-child {
+	>span:first-child {
 		margin-right: 10svw;
 	}
 }
@@ -60,11 +60,40 @@ div {
 	color: $warning-color;
 }
 
-.stop { // not on schedule
+// not on schedule
+.stop {
 	color: $alt-color;
 	font-style: italic;
 }
 
-.coffee { // coffee break
+// coffee break
+.coffee {
 	color: $coffee-color;
+}
+
+// -- progress bar --
+@keyframes stripes {
+	0% {
+		background-position: 0 0;
+	}
+
+	100% {
+		background-position: 50px 0;
+	}
+}
+
+.progress-bar {
+	position: relative;
+	overflow: hidden;
+}
+
+.progress-bar::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(168, 168, 168, 0.2);
+	z-index: -1;
 }
