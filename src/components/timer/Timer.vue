@@ -68,39 +68,41 @@ const getSchedule = (date) => {
 
 function workdayCalculator(date) {
 	let today = new Date(date);
-	let dayOffset = (date.getDay() % 6 === 0) ? 2 : 1;
+	const day = today.getDay();
+	const hours = today.getHours();
+	const lastEnd = new Date(today);
+	const nextStart = new Date(today);
 
-	let lastEnd = new Date(today);
-	let nextStart = new Date(today);
-
-	// if the schedule for today hasn't started yet, we need to subtract a day
-	if (today.getHours() < getSchedule(today)[0][0]) {
-		lastEnd.setDate(today.getDate() - dayOffset);
+	// calcular último día laborable
+	let lastOffset = 0;
+	if ((inSchedule(today) && getSchedule(today)[0][0] < hours) || !inSchedule(today)) {
+		lastOffset = day === 0 ? 2 : (day === 1 ? 3 : 1);
 	}
-	let lastSchedule = getSchedule(lastEnd);
-	let endHour = lastSchedule[lastSchedule.length - 1][1];
-	lastEnd.setHours(endHour, 0, 0, 0);
+	lastEnd.setDate(today.getDate() - lastOffset);
 
-	// if the schedule for today has passed, we need to add a day
-	let todaySchedule = getSchedule(today);
-	if (today.getHours() >= todaySchedule[lastSchedule.length - 1][1]) {
-		nextStart.setDate(today.getDate() + dayOffset);
+	// calcular siguiente día laborable
+	let nextOffset = 0;
+	if ((inSchedule(today) && getSchedule(today)[getSchedule(today).length - 1][0] <= hours) || !inSchedule(today)) {
+		nextOffset = day === 5 ? 3 : (day === 6 ? 2 : 1);
 	}
+	nextStart.setDate(today.getDate() + nextOffset);
 
-	let nextSchedule = getSchedule(nextStart);
-	let startHour = nextSchedule[0][0];
-	nextStart.setHours(startHour, 0, 0, 0);
+	// procesar fechas
+	const lastSchedule = getSchedule(lastEnd);
+	const nextSchedule = getSchedule(nextStart);
+	lastEnd.setHours(lastSchedule[lastSchedule.length - 1][1], 0, 0, 0);
+	nextStart.setHours(nextSchedule[0][0], 0, 0, 0);
 
-	return {
-		lastEnd,
-		nextStart
-	};
+	return { lastEnd, nextStart };
 }
 
 
 const inSchedule = (date) => {
 	const todayHours = getSchedule(date);
 	const hour = date.getHours();
+
+	if (date.getDay() === 0 || date.getDay() === 6) return false;
+
 	return todayHours.some(([start, end]) => hour >= start && hour < end);
 };
 
