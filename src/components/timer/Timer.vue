@@ -244,11 +244,33 @@ export default {
 	methods: {
 		updateDiff() {
 			const status = getStatus(new Date());
-			this.diff = getDateDiff(status);
+			const newDiff = getDateDiff(status);
+
+			if (this.diff.status && this.diff.status !== newDiff.status) {
+				this.invertColorsOnStatusChange();
+			}
+
+			this.diff = newDiff;
 			window.document.title = `${this.diff.icon} ${this.diff.string}`;
 
 			const elapsed = new Date() - status.start;
 			this.progress = Math.min(100, (elapsed / (status.target - status.start)) * 100);
+		},
+		invertColors() {
+			document.body.style.filter = 'invert(100%)';
+			setTimeout(() => {
+				document.body.style.filter = 'none';
+			}, 350);
+		},
+		invertColorsOnStatusChange() {
+			let count = 0;
+			const intervalId = setInterval(() => {
+				this.invertColors();
+				count++;
+				if (count === 3) {
+					clearInterval(intervalId);
+				}
+			}, 550);
 		},
 	},
 	mounted() {
