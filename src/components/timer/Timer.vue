@@ -75,14 +75,14 @@ function workdayCalculator(date) {
 
 	// calcular último día laborable
 	let lastOffset = 0;
-	if ((inSchedule(today) && getSchedule(today)[0][0] < hours) || !inSchedule(today)) {
+	if ((isWorkDay(today) && getSchedule(today)[0][0] < hours) || !isWorkDay(today)) {
 		lastOffset = day === 0 ? 2 : (day === 1 ? 3 : 1);
 	}
 	lastEnd.setDate(today.getDate() - lastOffset);
 
 	// calcular siguiente día laborable
 	let nextOffset = 0;
-	if ((inSchedule(today) && getSchedule(today)[getSchedule(today).length - 1][0] <= hours) || !inSchedule(today)) {
+	if ((isWorkDay(today) && getSchedule(today)[getSchedule(today).length - 1][1] <= hours) || !isWorkDay(today)) {
 		nextOffset = day === 5 ? 3 : (day === 6 ? 2 : 1);
 	}
 	nextStart.setDate(today.getDate() + nextOffset);
@@ -104,6 +104,12 @@ const inSchedule = (date) => {
 	if (date.getDay() === 0 || date.getDay() === 6) return false;
 
 	return todayHours.some(([start, end]) => hour >= start && hour < end);
+};
+
+
+const isWorkDay = (date) => {
+	const day = date.getDay();
+	return day !== 0 && day !== 6;
 };
 
 
