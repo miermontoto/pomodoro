@@ -57,6 +57,12 @@ const getDateDiff = (arr) => {
 };
 
 
+/**
+ * Devuelve el horario de trabajo para un día concreto, teniendo en cuenta
+ * horario de verano/invierno y viernes.
+ * @param {Date} date - fecha de referencia
+ * @returns {Array} - [[horaInicio1, horaFin1], [horaInicio2, horaFin2], ...]
+ */
 const getSchedule = (date) => {
 	const month = date.getMonth();
 	const dayOfWeek = date.getDay();
@@ -66,6 +72,11 @@ const getSchedule = (date) => {
 };
 
 
+/**
+ * Calcula el último fin de jornada y el siguiente inicio de jornada laborable
+ * @param {Date} date - fecha de referencia
+ * @returns {Object} - { lastEnd: Date, nextStart: Date }
+ */
 function workdayCalculator(date) {
 	let today = new Date(date);
 	const day = today.getDay();
@@ -73,17 +84,38 @@ function workdayCalculator(date) {
 	const lastEnd = new Date(today);
 	const nextStart = new Date(today);
 
+	const todaySchedule = getSchedule(today);
+	const firstHourOfToday = todaySchedule[0][0];
+	const lastHourOfToday = todaySchedule[todaySchedule.length - 1][1];
+	const isTodayWorkDay = isWorkDay(today);
+
 	// calcular último día laborable
 	let lastOffset = 0;
-	if ((isWorkDay(today) && getSchedule(today)[0][0] < hours) || !isWorkDay(today)) {
-		lastOffset = day === 0 ? 2 : (day === 1 ? 3 : 1);
+	// si la jornada laboral no ha empezado u hoy no es laborable
+	if (firstHourOfToday > hours || !isTodayWorkDay) {
+		// if today is monday (1), offset is 3
+		// if today is sunday (0), offset is 2
+		// in any other case, offset is 1
+		switch (day) {
+			case 1: lastOffset = 3; break;
+			case 0: lastOffset = 2; break;
+			default: lastOffset = 1;
+		}
 	}
 	lastEnd.setDate(today.getDate() - lastOffset);
 
 	// calcular siguiente día laborable
 	let nextOffset = 0;
-	if ((isWorkDay(today) && getSchedule(today)[getSchedule(today).length - 1][1] <= hours) || !isWorkDay(today)) {
-		nextOffset = day === 5 ? 3 : (day === 6 ? 2 : 1);
+	// si la jornada laboral de hoy ya ha terminado u hoy no es laborable
+	if (lastHourOfToday <= hours || !isTodayWorkDay) {
+		// if today is friday (5), offset is 3
+		// if today is saturday (6), offset is 2
+		// in any other case, offset is 1
+		switch (day) {
+			case 5: nextOffset = 3; break;
+			case 6: nextOffset = 2; break;
+			default: nextOffset = 1;
+		}
 	}
 	nextStart.setDate(today.getDate() + nextOffset);
 
@@ -97,22 +129,47 @@ function workdayCalculator(date) {
 }
 
 
+/**
+ * Comprueba si la fecha dada está dentro del horario laboral de un día concreto.
+ * NO tiene en cuenta festivos.
+ *
+ * @see getSchedule()
+ * @param {Date} date - fecha de referencia
+ * @returns {boolean} true si está en horario laboral, false en caso contrario
+ */
 const inSchedule = (date) => {
 	const todayHours = getSchedule(date);
 	const hour = date.getHours();
 
+	// si es fin de semana, no está en horario
 	if (date.getDay() === 0 || date.getDay() === 6) return false;
 
 	return todayHours.some(([start, end]) => hour >= start && hour < end);
 };
 
 
+/**
+ * Comprueba si la fecha dada es un día laborable.
+ *
+ * @param {Date} date - fecha de referencia
+ * @returns {boolean} true si es laborable, false en caso contrario
+ */
 const isWorkDay = (date) => {
 	const day = date.getDay();
 	return day !== 0 && day !== 6;
 };
 
 
+/**
+ * Devuelve la fecha formateada como cadena.
+ * Si la fecha es la de hoy, solo se muestra la hora.
+ * Si no, se muestra el día de la semana y la hora.
+ * Si la fecha es null, se devuelve '...'
+ *
+ * @param {Date} date - fecha a formatear
+ * @returns {string} - fecha formateada
+ * @example 'miércoles 12:34', '12:34', '...'
+ */
 const formatDate = (date) => {
 	if (!date) return UNKNOWN;
 
@@ -125,6 +182,15 @@ const formatDate = (date) => {
 };
 
 
+/**
+ * Devuelve el estado actual del temporizador, incluyendo la hora de inicio,
+ * la hora objetivo y el estado actual.
+ * Es la función principal del temporizador.
+ *
+ * @see workdayCalculator()
+ * @param {Date} date - fecha de referencia
+ * @returns {Object} - { target: Date, status: string, start: Date }
+ */
 const getStatus = (date) => {
 	const targetDate = new Date();
 	const startDate = new Date();
