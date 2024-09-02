@@ -122,8 +122,31 @@ function workdayCalculator(date) {
 	// procesar fechas
 	const lastSchedule = getSchedule(lastEnd);
 	const nextSchedule = getSchedule(nextStart);
-	lastEnd.setHours(lastSchedule[lastSchedule.length - 1][1], 0, 0, 0);
-	nextStart.setHours(nextSchedule[0][0], 0, 0, 0);
+
+	if (lastEnd.getDay() !== day) {
+		lastEnd.setHours(lastSchedule[lastSchedule.length - 1][1], 0, 0, 0);
+	} else {
+		// obtener la última hora de la jornada laboral de hoy.
+		// es decir, en el array de horas de hoy,
+		// la última hora que sea menor que la hora actual.
+		const lastHour = todaySchedule.reduce((acc, [start, end]) => {
+			if (hours >= end) return end;
+			return acc;
+		}, 0);
+		lastEnd.setHours(lastHour, 0, 0, 0);
+	}
+
+	if (nextStart.getDay() !== day) {
+		nextStart.setHours(nextSchedule[0][0], 0, 0, 0);
+	} else {
+		// ídem que arriba, la siguiente hora es
+		// la primera hora mayor que la hora actual.
+		const nextHour = todaySchedule.reduce((acc, [start, end]) => {
+			if (hours < start) return start;
+			return acc;
+		}, 0);
+		nextStart.setHours(nextHour, 0, 0, 0);
+	}
 
 	return { lastEnd, nextStart };
 }
