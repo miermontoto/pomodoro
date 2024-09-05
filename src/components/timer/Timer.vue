@@ -34,8 +34,7 @@ const STATUS_ICONS = new Map([
 
 const UNKNOWN = '...';
 
-const getDateDiff = (arr) => {
-	const now = new Date();
+const getDateDiff = (now, arr) => {
 	const { target, status, start } = arr;
 
 	const diff = new Date(target.getTime() - now.getTime());
@@ -332,8 +331,9 @@ export default {
 	},
 	methods: {
 		updateDiff() {
-			const status = getStatus(new Date());
-			const newDiff = getDateDiff(status);
+			const now = new Date();
+			const status = getStatus(now);
+			const newDiff = getDateDiff(now, status);
 
 			if (this.diff.status && this.diff.status !== newDiff.status) {
 				this.invertColorsOnStatusChange();
