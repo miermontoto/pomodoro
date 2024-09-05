@@ -128,10 +128,10 @@ function workdayCalculator(date) {
 		// obtener la última hora de la jornada laboral de hoy.
 		// es decir, en el array de horas de hoy,
 		// la última hora que sea menor que la hora actual.
-		const lastHour = todaySchedule.reduce((acc, [start, end]) => {
-			if (hours >= end) return end;
-			return acc;
-		}, 0);
+		const lastHour = Math.max(...todaySchedule
+			.filter(([start, end]) => start <= hours)
+			.map(([start, end]) => end));
+
 		lastEnd.setHours(lastHour, 0, 0, 0);
 	}
 
@@ -140,10 +140,10 @@ function workdayCalculator(date) {
 	} else {
 		// ídem que arriba, la siguiente hora es
 		// la primera hora mayor que la hora actual.
-		const nextHour = todaySchedule.reduce((acc, [start, end]) => {
-			if (hours < start) return start;
-			return acc;
-		}, 0);
+		const nextHour = Math.min(...todaySchedule
+			.filter(([start, end]) => start > hours)
+			.map(([start, end]) => start));
+
 		nextStart.setHours(nextHour, 0, 0, 0);
 	}
 
