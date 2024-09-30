@@ -214,8 +214,8 @@ const formatDate = (date) => {
  * @returns {Object} - { target: Date, status: string, start: Date }
  */
 const getStatus = (date) => {
-	const targetDate = new Date();
-	const startDate = new Date();
+	const targetDate = new Date(date);
+	const startDate = new Date(date);
 
 	if (!inSchedule(date)) {
 		const { nextStart, lastEnd } = workdayCalculator(date);
@@ -267,10 +267,14 @@ const getStatus = (date) => {
 			targetDate.setHours(12);
 			targetDate.setMinutes(0);
 			startDate.setMinutes(55);
+			startDate.setHours(11);
 			status = 'pause'
 		} else if (minutes >= 30) {
 			targetDate.setMinutes(55);
+			targetDate.setHours(11);
+			startDate.setHours(11);
 			startDate.setMinutes(30);
+			status = 'work';
 		} else {
 			targetDate.setMinutes(30);
 			startDate.setMinutes(0);
