@@ -1,0 +1,111 @@
+.alarm-selector {
+	display: flex;
+	align-items: center;
+	width: 100%;
+}
+
+.bell-icon {
+	width: 24px;
+	height: 24px;
+	margin-right: 10px;
+	fill: $front-color;
+}
+
+select {
+	flex-grow: 1;
+}
+
+.alarm-component {
+	margin-top: 1em;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	max-width: 300px;
+	margin-left: auto;
+	margin-right: auto;
+
+	.alarm-selector {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		margin-bottom: 0.5em;
+
+		.bell-icon {
+			flex-shrink: 0;
+			transition: fill 0.3s ease;
+		}
+
+		&:hover .bell-icon {
+			fill: darken($front-color, 10%);
+		}
+	}
+
+	select,
+	input[type="file"] {
+		width: 100%;
+		padding: 0.5em;
+		font-size: 0.8em;
+		border-radius: 4px;
+		border: 1px solid $front-color;
+		background-color: $back-color;
+		color: $front-color;
+		transition: all 0.3s ease;
+
+		&:hover,
+		&:focus {
+			outline: none;
+			box-shadow: 0 0 0 2px rgba($front-color, 0.5);
+		}
+	}
+
+	select {
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+		background-repeat: no-repeat;
+		background-position-x: 95%;
+		background-position-y: 50%;
+		padding-right: 2em;
+	}
+
+	input[type="file"] {
+		cursor: pointer;
+		margin-top: 0.5em;
+
+		&::file-selector-button {
+			font-size: 0.8em;
+			padding: 0.5em 1em;
+			border: none;
+			background-color: $front-color;
+			color: $back-color;
+			border-radius: 4px;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+
+			&:hover {
+				background-color: darken($front-color, 10%);
+			}
+		}
+	}
+}
+
+// Animation for when the alarm is playing
+@keyframes pulse {
+	0% {
+		transform: scale(1);
+	}
+
+	50% {
+		transform: scale(1.05);
+	}
+
+	100% {
+		transform: scale(1);
+	}
+}
+
+.alarm-playing {
+	animation: pulse 0.5s infinite;
+}

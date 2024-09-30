@@ -21,7 +21,6 @@
 </template>
 
 <script>
-import './Timer.scss';
 
 const STATUS_ICONS = new Map([
 	['work', '🍅'],
@@ -337,6 +336,7 @@ export default {
 
 			if (this.diff.status && this.diff.status !== newDiff.status) {
 				this.invertColorsOnStatusChange();
+				this.$eventBus.emit('timerStatusChanged');
 			}
 
 			this.diff = newDiff;
@@ -370,5 +370,8 @@ export default {
 		clearInterval(this.timer);
 	},
 };
-
 </script>
+
+<style scoped lang="scss">
+@import './Timer.scss';
+</style>
