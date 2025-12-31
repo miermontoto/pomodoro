@@ -95,6 +95,13 @@ export default {
 <template>
 	<div class="schedule-controls">
 		<div class="controls-row">
+			<button
+				v-if="currentId === 'custom'"
+				class="btn control-btn edit-btn"
+				@click="showCustomInput = true"
+				title="Edit custom config"
+			>✎</button>
+
 			<select :value="currentId" @change="onSelectChange" class="schedule-select">
 				<option v-for="preset in presets" :key="preset.id" :value="preset.id">
 					{{ preset.name }}
@@ -211,6 +218,13 @@ export default {
 	&.active {
 		border-color: #666 !important;
 	}
+}
+
+.edit-btn {
+	background: transparent !important;
+	border-color: #333 !important;
+	color: white !important;
+	padding: 0.25em 0.5em;
 }
 
 .custom-modal {

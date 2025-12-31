@@ -38,7 +38,7 @@ const STATUS_ICONS = new Map([
 const UNKNOWN = '...';
 
 const getDateDiff = (now, arr) => {
-	const { target, status, start } = arr;
+	const { target, status, start, nextStatus } = arr;
 
 	const diff = new Date(target.getTime() - now.getTime());
 	const hours = (diff.getHours() - 1) + (diff.getDate() - 1) * 24;
@@ -46,7 +46,9 @@ const getDateDiff = (now, arr) => {
 	const seconds = diff.getSeconds();
 	const items = hours === 0 ? [minutes, seconds] : [hours, minutes, seconds];
 
-	const targetIcon = STATUS_ICONS.get(getStatus(target).status) || '❔';
+	// usar nextStatus si está disponible, sino calcular con getStatus
+	const nextStatusValue = nextStatus ?? getStatus(target).status;
+	const targetIcon = STATUS_ICONS.get(nextStatusValue) || '❔';
 	const targetDate = formatDate(target) ?? UNKNOWN;
 
 	return {
@@ -221,7 +223,8 @@ const getSimpleStatus = (date, schedule) => {
 		return {
 			target: date,
 			status: 'stop',
-			start: date
+			start: date,
+			nextStatus: 'stop'
 		};
 	}
 
@@ -236,16 +239,18 @@ const getSimpleStatus = (date, schedule) => {
 	const targetDate = new Date(date);
 	const startDate = new Date(date);
 
-	let status;
+	let status, nextStatus;
 	if (positionInCycleMs < workMs) {
 		// en periodo de trabajo
 		status = 'work';
+		nextStatus = 'pause';
 		const msLeft = workMs - positionInCycleMs;
 		targetDate.setTime(date.getTime() + msLeft);
 		startDate.setTime(date.getTime() - positionInCycleMs);
 	} else {
 		// en periodo de pausa
 		status = 'pause';
+		nextStatus = 'work';
 		const pausePositionMs = positionInCycleMs - workMs;
 		const breakMs = breakMinutes * 60 * 1000;
 		const msLeft = breakMs - pausePositionMs;
@@ -253,7 +258,7 @@ const getSimpleStatus = (date, schedule) => {
 		startDate.setTime(date.getTime() - pausePositionMs);
 	}
 
-	return { target: targetDate, status, start: startDate };
+	return { target: targetDate, status, start: startDate, nextStatus };
 };
 
 
@@ -287,7 +292,8 @@ const getCustomWorkHoursStatus = (date, schedule) => {
 		return {
 			target: date,
 			status: 'stop',
-			start: date
+			start: date,
+			nextStatus: 'stop'
 		};
 	}
 
@@ -301,21 +307,23 @@ const getCustomWorkHoursStatus = (date, schedule) => {
 	targetDate.setSeconds(0, 0);
 	startDate.setSeconds(0, 0);
 
-	let status;
+	let status, nextStatus;
 	if (positionInCycle < workMinutes) {
 		status = 'work';
+		nextStatus = 'pause';
 		const minutesLeft = workMinutes - positionInCycle;
 		targetDate.setMinutes(date.getMinutes() + minutesLeft);
 		startDate.setMinutes(date.getMinutes() - positionInCycle);
 	} else {
 		status = 'pause';
+		nextStatus = 'work';
 		const pausePosition = positionInCycle - workMinutes;
 		const minutesLeft = breakMinutes - pausePosition;
 		targetDate.setMinutes(date.getMinutes() + minutesLeft);
 		startDate.setMinutes(date.getMinutes() - pausePosition);
 	}
 
-	return { target: targetDate, status, start: startDate };
+	return { target: targetDate, status, start: startDate, nextStatus };
 };
 
 
