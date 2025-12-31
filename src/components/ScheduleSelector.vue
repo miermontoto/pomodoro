@@ -38,7 +38,11 @@ export default {
 			return Object.values(SCHEDULE_PRESETS);
 		},
 		activeSchedule() {
-			return getActiveSchedule();
+			// acceder directamente al store para mantener reactividad
+			if (this.currentId === 'custom' && scheduleStore.customConfig) {
+				return scheduleStore.customConfig;
+			}
+			return SCHEDULE_PRESETS[this.currentId] ?? SCHEDULE_PRESETS['okticket'];
 		},
 		isManualMode() {
 			return !this.activeSchedule.useWorkHours;
