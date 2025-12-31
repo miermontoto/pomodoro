@@ -225,7 +225,7 @@ export const validateCustomSchedule = (config) => {
 		return { valid: false, error: 'debe ser un objeto JSON válido' };
 	}
 
-	const { workMinutes, breakMinutes, workHours } = config;
+	const { workMinutes, breakMinutes, workHours, cycles } = config;
 
 	if (typeof workMinutes !== 'number' || workMinutes < 1 || workMinutes > 120) {
 		return { valid: false, error: 'workMinutes debe ser un número entre 1 y 120' };
@@ -233,6 +233,13 @@ export const validateCustomSchedule = (config) => {
 
 	if (typeof breakMinutes !== 'number' || breakMinutes < 1 || breakMinutes > 60) {
 		return { valid: false, error: 'breakMinutes debe ser un número entre 1 y 60' };
+	}
+
+	// validar cycles si está presente (null o undefined = infinito)
+	if (cycles !== undefined && cycles !== null) {
+		if (typeof cycles !== 'number' || !Number.isInteger(cycles) || cycles < 1) {
+			return { valid: false, error: 'cycles debe ser un entero >= 1 (o null para infinito)' };
+		}
 	}
 
 	// validar workHours si está presente
@@ -268,6 +275,8 @@ export const parseCustomSchedule = (jsonString) => {
 				breakMinutes: config.breakMinutes,
 				useWorkHours: hasWorkHours,
 				workHours: config.workHours ?? null,
+				// cycles: undefined/null = infinito, número = límite
+				cycles: config.cycles ?? null,
 			}
 		};
 	} catch (e) {
