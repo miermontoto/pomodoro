@@ -82,6 +82,15 @@ export const initializeCycles = () => {
 };
 
 /**
+ * Establece el número de ciclos manualmente.
+ * @param {number|null} cycles - número de ciclos o null para infinito
+ */
+export const setCycles = (cycles) => {
+	scheduleStore.cyclesLeft = cycles ?? INFINITE_CYCLES;
+	scheduleStore.currentCycleIndex = 0;
+};
+
+/**
  * Decrementa el contador de ciclos.
  * @returns {boolean} true si se agotaron los ciclos
  */

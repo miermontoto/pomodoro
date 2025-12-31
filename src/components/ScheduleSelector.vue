@@ -10,7 +10,8 @@ import {
 	resumeTimer,
 	stopTimer,
 	enableNotifications,
-	disableNotifications
+	disableNotifications,
+	setCycles
 } from '../stores/schedule.js';
 
 export default {
@@ -20,6 +21,7 @@ export default {
 			showCustomInput: false,
 			customJson: scheduleStore.customJson || this.getDefaultCustomJson(),
 			customError: '',
+			cyclesInput: '',
 		};
 	},
 	computed: {
@@ -40,6 +42,10 @@ export default {
 		},
 		isManualMode() {
 			return !this.activeSchedule.useWorkHours;
+		},
+		showCyclesInput() {
+			// mostrar input de ciclos para modos manuales (no okticket) cuando el timer está detenido
+			return this.isManualMode && this.timerState === 'stopped';
 		},
 	},
 	methods: {
@@ -71,6 +77,11 @@ export default {
 		},
 		onStart() {
 			startTimer();
+			// aplicar ciclos del input si se especificó un número válido
+			const cycles = parseInt(this.cyclesInput, 10);
+			if (!isNaN(cycles) && cycles >= 1) {
+				setCycles(cycles);
+			}
 		},
 		onPause() {
 			pauseTimer();
@@ -110,6 +121,14 @@ export default {
 			</select>
 
 			<template v-if="isManualMode">
+				<input
+					v-if="showCyclesInput"
+					v-model="cyclesInput"
+					type="text"
+					class="cycles-input"
+					placeholder="∞"
+					title="Number of cycles (empty = infinite)"
+				>
 				<button
 					v-if="timerState === 'stopped'"
 					class="btn control-btn"
@@ -199,6 +218,26 @@ export default {
 .control-btn {
 	font-size: 0.6em;
 	padding: 0.25em 0.75em;
+}
+
+.cycles-input {
+	width: 2.5em;
+	background: black;
+	color: white;
+	border: 1px solid #333;
+	padding: 0.25em 0.4em;
+	font-family: inherit;
+	font-size: 0.6em;
+	text-align: center;
+
+	&:hover, &:focus {
+		border-color: white;
+		outline: none;
+	}
+
+	&::placeholder {
+		color: #666;
+	}
 }
 
 .btn-stop {
