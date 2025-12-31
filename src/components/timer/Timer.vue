@@ -22,6 +22,8 @@
 
 <script>
 import './Timer.scss';
+import { getActiveSchedule, scheduleStore, getElapsedMs } from '../../stores/schedule.js';
+import { resolveWorkHours } from '../../config/schedules.js';
 
 const STATUS_ICONS = new Map([
 	['work', '🍅'],
@@ -205,6 +207,118 @@ const formatDate = (date) => {
 
 
 /**
+ * Calcula el estado para un pomodoro simple (sin horarios laborales).
+ * Usa el tiempo transcurrido desde que el usuario inició el timer.
+ *
+ * @param {Date} date - fecha de referencia
+ * @param {Object} schedule - configuración del schedule
+ * @returns {Object} - { target: Date, status: string, start: Date }
+ */
+const getSimpleStatus = (date, schedule) => {
+	// si el timer está detenido, mostrar estado stop
+	if (scheduleStore.timerState === 'stopped') {
+		return {
+			target: date,
+			status: 'stop',
+			start: date
+		};
+	}
+
+	const { workMinutes, breakMinutes } = schedule;
+	const cycleLengthMs = (workMinutes + breakMinutes) * 60 * 1000;
+	const workMs = workMinutes * 60 * 1000;
+
+	// usar tiempo transcurrido desde inicio del timer
+	const elapsedMs = getElapsedMs();
+	const positionInCycleMs = elapsedMs % cycleLengthMs;
+
+	const targetDate = new Date(date);
+	const startDate = new Date(date);
+
+	let status;
+	if (positionInCycleMs < workMs) {
+		// en periodo de trabajo
+		status = 'work';
+		const msLeft = workMs - positionInCycleMs;
+		targetDate.setTime(date.getTime() + msLeft);
+		startDate.setTime(date.getTime() - positionInCycleMs);
+	} else {
+		// en periodo de pausa
+		status = 'pause';
+		const pausePositionMs = positionInCycleMs - workMs;
+		const breakMs = breakMinutes * 60 * 1000;
+		const msLeft = breakMs - pausePositionMs;
+		targetDate.setTime(date.getTime() + msLeft);
+		startDate.setTime(date.getTime() - pausePositionMs);
+	}
+
+	return { target: targetDate, status, start: startDate };
+};
+
+
+/**
+ * Comprueba si la hora actual está dentro de los rangos de trabajo.
+ * @param {number} hour - hora actual
+ * @param {Array} workHours - rangos de horas [[inicio, fin], ...]
+ * @returns {boolean}
+ */
+const isInWorkHours = (hour, workHours) => {
+	if (!workHours) return false;
+	return workHours.some(([start, end]) => hour >= start && hour < end);
+};
+
+
+/**
+ * Calcula el estado para un schedule custom con horarios laborales.
+ * Usa ciclos de pomodoro simples basados en el reloj, dentro de las horas definidas.
+ *
+ * @param {Date} date - fecha de referencia
+ * @param {Object} schedule - configuración del schedule
+ * @returns {Object} - { target: Date, status: string, start: Date }
+ */
+const getCustomWorkHoursStatus = (date, schedule) => {
+	const { workMinutes, breakMinutes, workHours } = schedule;
+	const resolvedHours = resolveWorkHours(workHours, date);
+	const hour = date.getHours();
+
+	// si no estamos en horario laboral o es fin de semana
+	if (!resolvedHours || !isInWorkHours(hour, resolvedHours) || date.getDay() === 0 || date.getDay() === 6) {
+		return {
+			target: date,
+			status: 'stop',
+			start: date
+		};
+	}
+
+	// ciclo simple basado en la hora actual
+	const cycleLength = workMinutes + breakMinutes;
+	const minutesSinceHour = date.getMinutes();
+	const positionInCycle = minutesSinceHour % cycleLength;
+
+	const targetDate = new Date(date);
+	const startDate = new Date(date);
+	targetDate.setSeconds(0, 0);
+	startDate.setSeconds(0, 0);
+
+	let status;
+	if (positionInCycle < workMinutes) {
+		status = 'work';
+		const minutesLeft = workMinutes - positionInCycle;
+		targetDate.setMinutes(date.getMinutes() + minutesLeft);
+		startDate.setMinutes(date.getMinutes() - positionInCycle);
+	} else {
+		status = 'pause';
+		const pausePosition = positionInCycle - workMinutes;
+		const minutesLeft = breakMinutes - pausePosition;
+		targetDate.setMinutes(date.getMinutes() + minutesLeft);
+		startDate.setMinutes(date.getMinutes() - pausePosition);
+	}
+
+	return { target: targetDate, status, start: startDate };
+};
+
+
+/**
  * Devuelve el estado actual del temporizador, incluyendo la hora de inicio,
  * la hora objetivo y el estado actual.
  * Es la función principal del temporizador.
@@ -214,6 +328,19 @@ const formatDate = (date) => {
  * @returns {Object} - { target: Date, status: string, start: Date }
  */
 const getStatus = (date) => {
+	const schedule = getActiveSchedule();
+
+	// para schedules sin horarios laborales, usar lógica simple (manual)
+	if (!schedule.useWorkHours) {
+		return getSimpleStatus(date, schedule);
+	}
+
+	// para schedules custom con workHours definido, usar lógica custom
+	if (schedule.id === 'custom' && schedule.workHours) {
+		return getCustomWorkHoursStatus(date, schedule);
+	}
+
+	// lógica de okticket con horarios laborales y eventos especiales
 	const targetDate = new Date(date);
 	const startDate = new Date(date);
 
@@ -339,8 +466,12 @@ export default {
 			const status = getStatus(now);
 			const newDiff = getDateDiff(now, status);
 
+			// solo animar si el cambio no fue provocado por el usuario
 			if (this.diff.status && this.diff.status !== newDiff.status) {
-				this.invertColorsOnStatusChange();
+				if (!scheduleStore.userTriggeredChange) {
+					this.invertColorsOnStatusChange();
+				}
+				scheduleStore.userTriggeredChange = false;
 			}
 
 			this.diff = newDiff;

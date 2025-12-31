@@ -1,12 +1,14 @@
 <script setup>
 	import TimerComponent   from './components/timer/Timer.vue';
 	import MarqueeComponent from './components/marquee/Marquee.vue';
+	import ScheduleSelector from './components/ScheduleSelector.vue';
 	import './App.scss';
 </script>
 
 <template>
 	<MarqueeComponent />
 	<TimerComponent />
+	<ScheduleSelector />
 
 	<div id="footer">
 		<a href="https://mier.info">
