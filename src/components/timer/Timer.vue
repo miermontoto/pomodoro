@@ -471,17 +471,24 @@ export default {
 		};
 	},
 	computed: {
+		cyclesLeft() {
+			return scheduleStore.cyclesLeft;
+		},
+		timerState() {
+			return scheduleStore.timerState;
+		},
+		activeScheduleId() {
+			return scheduleStore.currentId;
+		},
 		showCycles() {
-			const schedule = getActiveSchedule();
 			// no mostrar para okticket
-			if (schedule.id === 'okticket') return false;
-			// mostrar solo si hay ciclos finitos configurados
-			return scheduleStore.cyclesLeft !== Infinity && scheduleStore.timerState !== 'stopped';
+			if (this.activeScheduleId === 'okticket') return false;
+			// mostrar solo si hay ciclos finitos configurados y timer activo
+			return this.cyclesLeft !== Infinity && this.timerState !== 'stopped';
 		},
 		cyclesDisplay() {
-			const left = scheduleStore.cyclesLeft;
-			if (left === Infinity) return '';
-			return `×${left}`;
+			if (this.cyclesLeft === Infinity) return '';
+			return `×${this.cyclesLeft}`;
 		},
 	},
 	methods: {
