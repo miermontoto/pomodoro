@@ -146,6 +146,7 @@ export default {
 				<div class="help-tooltip">
 					<code>workMinutes</code> work duration (1-120)<br>
 					<code>breakMinutes</code> break duration (1-60)<br>
+					<code>cycles</code> (optional) number of cycles, null=infinite<br>
 					<code>workHours</code> (optional) restricts to hours:<br>
 					<span class="help-indent">simple: <code>[[9,14],[16,18]]</code></span><br>
 					<span class="help-indent">by day: <code>{"default":[...],"friday":[...]}</code></span><br>

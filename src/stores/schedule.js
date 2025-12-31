@@ -29,6 +29,9 @@ const loadFromStorage = () => {
 
 const initialState = loadFromStorage();
 
+// Infinity representa ciclos infinitos
+const INFINITE_CYCLES = Infinity;
+
 export const scheduleStore = reactive({
 	currentId: initialState.currentId,
 	customConfig: initialState.customConfig,
@@ -42,6 +45,10 @@ export const scheduleStore = reactive({
 	userTriggeredChange: false,
 	// notificaciones del navegador
 	notificationsEnabled: initialState.notificationsEnabled,
+	// ciclos restantes (Infinity = infinito)
+	cyclesLeft: INFINITE_CYCLES,
+	// ciclo completado actual (para detectar transiciones)
+	currentCycleIndex: 0,
 });
 
 /**
@@ -56,6 +63,36 @@ export const getActiveSchedule = () => {
 };
 
 /**
+ * Obtiene el número de ciclos configurados para el schedule activo.
+ * @returns {number} número de ciclos (Infinity si no está definido)
+ */
+export const getConfiguredCycles = () => {
+	const schedule = getActiveSchedule();
+	// okticket no usa ciclos
+	if (schedule.id === 'okticket') return INFINITE_CYCLES;
+	return schedule.cycles ?? INFINITE_CYCLES;
+};
+
+/**
+ * Inicializa los ciclos según la configuración del schedule activo.
+ */
+export const initializeCycles = () => {
+	scheduleStore.cyclesLeft = getConfiguredCycles();
+	scheduleStore.currentCycleIndex = 0;
+};
+
+/**
+ * Decrementa el contador de ciclos.
+ * @returns {boolean} true si se agotaron los ciclos
+ */
+export const decrementCycle = () => {
+	if (scheduleStore.cyclesLeft === INFINITE_CYCLES) return false;
+	scheduleStore.cyclesLeft = Math.max(0, scheduleStore.cyclesLeft - 1);
+	scheduleStore.currentCycleIndex++;
+	return scheduleStore.cyclesLeft === 0;
+};
+
+/**
  * Inicia el timer manual.
  */
 export const startTimer = () => {
@@ -64,6 +101,7 @@ export const startTimer = () => {
 	scheduleStore.startedAt = Date.now();
 	scheduleStore.pausedAt = null;
 	scheduleStore.accumulatedMs = 0;
+	initializeCycles();
 };
 
 /**
@@ -99,6 +137,8 @@ export const stopTimer = () => {
 	scheduleStore.startedAt = null;
 	scheduleStore.pausedAt = null;
 	scheduleStore.accumulatedMs = 0;
+	scheduleStore.cyclesLeft = INFINITE_CYCLES;
+	scheduleStore.currentCycleIndex = 0;
 };
 
 /**

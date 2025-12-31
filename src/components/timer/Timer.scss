@@ -21,6 +21,13 @@
 	#countdown {
 		align-self: center;
 	}
+
+	#cycles {
+		font-size: min(6vw, 2em);
+		color: $alt-color;
+		margin-left: 0.5em;
+		align-self: center;
+	}
 }
 
 div {

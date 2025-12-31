@@ -2,6 +2,7 @@
 	<div id="timer" class="bar">
 		<span id="icon">{{ diff.icon }}</span>
 		<span id="countdown" :class="diff.status">{{ diff.string }}</span>
+		<span v-if="showCycles" id="cycles">{{ cyclesDisplay }}</span>
 		<br>
 	</div>
 	<div class="bar progress-bar"
@@ -22,7 +23,7 @@
 
 <script>
 import './Timer.scss';
-import { getActiveSchedule, scheduleStore, getElapsedMs, sendNotification } from '../../stores/schedule.js';
+import { getActiveSchedule, scheduleStore, getElapsedMs, sendNotification, decrementCycle, stopTimer } from '../../stores/schedule.js';
 import { resolveWorkHours } from '../../config/schedules.js';
 
 const STATUS_ICONS = new Map([
@@ -469,17 +470,43 @@ export default {
 			progress: 0,
 		};
 	},
+	computed: {
+		showCycles() {
+			const schedule = getActiveSchedule();
+			// no mostrar para okticket
+			if (schedule.id === 'okticket') return false;
+			// mostrar solo si hay ciclos finitos configurados
+			return scheduleStore.cyclesLeft !== Infinity && scheduleStore.timerState !== 'stopped';
+		},
+		cyclesDisplay() {
+			const left = scheduleStore.cyclesLeft;
+			if (left === Infinity) return '';
+			return `×${left}`;
+		},
+	},
 	methods: {
 		updateDiff() {
 			const now = new Date();
 			const status = getStatus(now);
 			const newDiff = getDateDiff(now, status);
+			const schedule = getActiveSchedule();
 
 			// solo animar y notificar si el cambio no fue provocado por el usuario
 			if (this.diff.status && this.diff.status !== newDiff.status) {
 				if (!scheduleStore.userTriggeredChange) {
 					this.invertColorsOnStatusChange();
 					sendNotification(this.diff.status, newDiff.status);
+
+					// decrementar ciclo cuando se completa un periodo de trabajo (work -> pause)
+					// solo para modos que no son okticket y tienen ciclos configurados
+					if (schedule.id !== 'okticket' && this.diff.status === 'work' && newDiff.status === 'pause') {
+						const exhausted = decrementCycle();
+						if (exhausted) {
+							// ciclos agotados: detener el timer
+							stopTimer();
+							return;
+						}
+					}
 				}
 				scheduleStore.userTriggeredChange = false;
 			}
