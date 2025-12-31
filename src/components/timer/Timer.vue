@@ -491,9 +491,9 @@ export default {
 			this.progress = Math.min(100, (elapsed / (status.target - status.start)) * 100);
 		},
 		invertColors() {
-			document.body.style.filter = 'invert(100%)';
+			document.documentElement.style.filter = 'invert(100%)';
 			setTimeout(() => {
-				document.body.style.filter = 'none';
+				document.documentElement.style.filter = 'none';
 			}, 350);
 		},
 		invertColorsOnStatusChange() {

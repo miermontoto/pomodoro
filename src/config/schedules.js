@@ -7,16 +7,16 @@ export const SCHEDULE_PRESETS = {
 		breakMinutes: 10,
 		useWorkHours: true,
 	},
-	'pomodoro-25': {
-		id: 'pomodoro-25',
-		name: 'pomodoro 25',
+	'standard-25': {
+		id: 'standard-25',
+		name: 'standard 25',
 		workMinutes: 25,
 		breakMinutes: 5,
 		useWorkHours: false,
 	},
-	'pomodoro-50': {
-		id: 'pomodoro-50',
-		name: 'pomodoro 50',
+	'standard-50': {
+		id: 'standard-50',
+		name: 'standard 50',
 		workMinutes: 50,
 		breakMinutes: 10,
 		useWorkHours: false,
