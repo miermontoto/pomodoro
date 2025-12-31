@@ -8,7 +8,9 @@ import {
 	startTimer,
 	pauseTimer,
 	resumeTimer,
-	stopTimer
+	stopTimer,
+	enableNotifications,
+	disableNotifications
 } from '../stores/schedule.js';
 
 export default {
@@ -26,6 +28,9 @@ export default {
 		},
 		timerState() {
 			return scheduleStore.timerState;
+		},
+		notificationsEnabled() {
+			return scheduleStore.notificationsEnabled;
 		},
 		presets() {
 			return Object.values(SCHEDULE_PRESETS);
@@ -76,6 +81,13 @@ export default {
 		onStop() {
 			stopTimer();
 		},
+		async toggleNotifications() {
+			if (this.notificationsEnabled) {
+				disableNotifications();
+			} else {
+				await enableNotifications();
+			}
+		},
 	},
 };
 </script>
@@ -87,7 +99,7 @@ export default {
 				<option v-for="preset in presets" :key="preset.id" :value="preset.id">
 					{{ preset.name }}
 				</option>
-				<option value="custom">Custom</option>
+				<option value="custom">custom</option>
 			</select>
 
 			<template v-if="isManualMode">
@@ -112,6 +124,13 @@ export default {
 					@click="onStop"
 				>stop</button>
 			</template>
+
+			<button
+				class="btn control-btn notification-btn"
+				:class="{ active: notificationsEnabled }"
+				@click="toggleNotifications"
+				:title="notificationsEnabled ? 'Disable notifications' : 'Enable notifications'"
+			>{{ notificationsEnabled ? '🔔' : '🔕' }}</button>
 		</div>
 
 		<div v-if="showCustomInput" class="custom-modal">
@@ -181,6 +200,16 @@ export default {
 
 	&:hover {
 		background: #555 !important;
+	}
+}
+
+.notification-btn {
+	background: transparent !important;
+	border-color: #333 !important;
+	padding: 0.25em 0.5em;
+
+	&.active {
+		border-color: #666 !important;
 	}
 }
 

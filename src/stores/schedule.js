@@ -3,11 +3,13 @@ import { SCHEDULE_PRESETS, DEFAULT_SCHEDULE_ID, parseCustomSchedule } from '../c
 
 const STORAGE_KEY = 'pomodoro-schedule';
 const CUSTOM_STORAGE_KEY = 'pomodoro-custom-schedule';
+const NOTIFICATIONS_KEY = 'pomodoro-notifications';
 
 // cargar estado inicial desde localStorage
 const loadFromStorage = () => {
 	const savedId = localStorage.getItem(STORAGE_KEY);
 	const savedCustom = localStorage.getItem(CUSTOM_STORAGE_KEY);
+	const savedNotifications = localStorage.getItem(NOTIFICATIONS_KEY);
 
 	let customConfig = null;
 	if (savedCustom) {
@@ -21,6 +23,7 @@ const loadFromStorage = () => {
 		currentId: savedId && (SCHEDULE_PRESETS[savedId] || savedId === 'custom') ? savedId : DEFAULT_SCHEDULE_ID,
 		customConfig,
 		customJson: savedCustom || '',
+		notificationsEnabled: savedNotifications === 'true',
 	};
 };
 
@@ -37,6 +40,8 @@ export const scheduleStore = reactive({
 	accumulatedMs: 0,      // tiempo acumulado antes de pausa
 	// flag para suprimir animación en cambios provocados por el usuario
 	userTriggeredChange: false,
+	// notificaciones del navegador
+	notificationsEnabled: initialState.notificationsEnabled,
 });
 
 /**
@@ -153,4 +158,56 @@ export const setCustomSchedule = (jsonString, autoStart = true) => {
 	}
 
 	return { success: true };
+};
+
+/**
+ * Habilita las notificaciones del navegador.
+ * Solicita permiso si es necesario.
+ * @returns {Promise<boolean>} true si se habilitaron correctamente
+ */
+export const enableNotifications = async () => {
+	if (!('Notification' in window)) {
+		return false;
+	}
+
+	let permission = Notification.permission;
+	if (permission === 'default') {
+		permission = await Notification.requestPermission();
+	}
+
+	if (permission === 'granted') {
+		scheduleStore.notificationsEnabled = true;
+		localStorage.setItem(NOTIFICATIONS_KEY, 'true');
+		return true;
+	}
+
+	return false;
+};
+
+/**
+ * Deshabilita las notificaciones.
+ */
+export const disableNotifications = () => {
+	scheduleStore.notificationsEnabled = false;
+	localStorage.setItem(NOTIFICATIONS_KEY, 'false');
+};
+
+/**
+ * Envía una notificación si están habilitadas.
+ * @param {string} oldStatus - estado anterior
+ * @param {string} newStatus - estado nuevo
+ */
+export const sendNotification = (oldStatus, newStatus) => {
+	if (!scheduleStore.notificationsEnabled) return;
+	if (!('Notification' in window)) return;
+	if (Notification.permission !== 'granted') return;
+
+	const hour = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+	new Notification('pomodoro.mier.info', {
+		body: `${oldStatus} → ${newStatus} @ ${hour}`,
+		icon: `/favicon.svg`,
+		tag: 'pomodoro-status',
+		renotify: true,
+	});
 };

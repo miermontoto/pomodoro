@@ -2,21 +2,21 @@
 export const SCHEDULE_PRESETS = {
 	okticket: {
 		id: 'okticket',
-		name: 'OkTicket',
+		name: 'okticket',
 		workMinutes: 50,
 		breakMinutes: 10,
 		useWorkHours: true,
 	},
 	'pomodoro-25': {
 		id: 'pomodoro-25',
-		name: 'Pomodoro 25',
+		name: 'pomodoro 25',
 		workMinutes: 25,
 		breakMinutes: 5,
 		useWorkHours: false,
 	},
 	'pomodoro-50': {
 		id: 'pomodoro-50',
-		name: 'Pomodoro 50',
+		name: 'pomodoro 50',
 		workMinutes: 50,
 		breakMinutes: 10,
 		useWorkHours: false,
@@ -263,7 +263,7 @@ export const parseCustomSchedule = (jsonString) => {
 		return {
 			config: {
 				id: 'custom',
-				name: 'Custom',
+				name: 'custom',
 				workMinutes: config.workMinutes,
 				breakMinutes: config.breakMinutes,
 				useWorkHours: hasWorkHours,

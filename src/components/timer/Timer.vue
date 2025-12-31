@@ -22,7 +22,7 @@
 
 <script>
 import './Timer.scss';
-import { getActiveSchedule, scheduleStore, getElapsedMs } from '../../stores/schedule.js';
+import { getActiveSchedule, scheduleStore, getElapsedMs, sendNotification } from '../../stores/schedule.js';
 import { resolveWorkHours } from '../../config/schedules.js';
 
 const STATUS_ICONS = new Map([
@@ -33,6 +33,7 @@ const STATUS_ICONS = new Map([
 	['pause', '⏸️'],
 	['daily', '📅'],
 ]);
+
 
 const UNKNOWN = '...';
 
@@ -466,10 +467,11 @@ export default {
 			const status = getStatus(now);
 			const newDiff = getDateDiff(now, status);
 
-			// solo animar si el cambio no fue provocado por el usuario
+			// solo animar y notificar si el cambio no fue provocado por el usuario
 			if (this.diff.status && this.diff.status !== newDiff.status) {
 				if (!scheduleStore.userTriggeredChange) {
 					this.invertColorsOnStatusChange();
+					sendNotification(this.diff.status, newDiff.status);
 				}
 				scheduleStore.userTriggeredChange = false;
 			}
